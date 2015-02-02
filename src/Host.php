@@ -54,7 +54,7 @@ class Host {
 
 	public function __construct($config = NULL) {
 
-		if(!$config) $config = new stdClass();
+		if(!$config) $config = new \stdClass();
 
 		self::$instance = $this;
 		self::$config = $config;
@@ -112,11 +112,11 @@ class Host {
 	}
 
 	public function initializeConfig() {
-		if(!isset(self::$config->app)) self::$config->app = new stdClass();
+		if(!isset(self::$config->app)) self::$config->app = new \stdClass();
 		if(!isset(self::$config->app->routes)) self::$config->app->routes = './routes';
 		if(!isset(self::$config->app->class)) self::$config->app->class = '\Fubber\Reactor\App';
 
-		if(!isset(self::$config->http)) self::$config->http = new stdClass();
+		if(!isset(self::$config->http)) self::$config->http = new \stdClass();
 		if(!isset(self::$config->http->host)) self::$config->http->host = 'localhost';
 		if(!isset(self::$config->http->port)) self::$config->http->port = 1337;
 	}
