@@ -94,7 +94,7 @@ class App {
 
 	public function scanRoutes($root = NULL) {
 		if($root===NULL)
-			$root = Host::$config->app->root;
+			$root = Host::$config->app->routes;
 
 		$all = glob($root.'/*'); /* */
 		foreach($all as $path) {
@@ -109,7 +109,7 @@ class App {
 
 	public function scanRouteAdd($path) {
 		$path = realpath($path);
-		$root = realpath(Host::$config->app->root);
+		$root = realpath(Host::$config->app->routes);
 
 		if(strpos($path, $root)!==0) {
 			Host::$instance->logError("Routes: Not adding $path. Must reside inside $root.");
@@ -140,6 +140,9 @@ class App {
 		// What path should this file be exposed as?
 		if(!empty($pi['extension'])) {
 			switch($pi['extension']) {
+				case 'json' :
+					$endpoint = $this->createEndpointFromJsonFile($path);
+					break;
 				case 'ini' :
 					$endpoint = $this->createEndpointFromIniFile($path);
 					break;
@@ -165,8 +168,38 @@ class App {
 		return TRUE;
 	}
 
+	public function createEndpointFromJsonFile($path) {
+		if(strpos(realpath($path), realpath(Host::$config->app->routes))!==0)
+			return NULL;
+		$config = json_decode(file_get_contents($path));
+
+		if(!$config) {
+			Host::$instance->logError('Parsing "'.$path.'": Unable to parse the JSON file. Did you remember to use \\\\ instead of \\?');
+			return NULL;
+		}
+
+		if(!isset($config->class)) {
+			Host::$instance->logError('Parsing "'.$path.'": No "class" value.');
+			return NULL;
+		}
+
+		$className = $config->class;
+
+		if(!class_exists($className)) {
+			Host::$instance->logError('Parsing "'.$path.'": Class "'.$className.'" not found. Did you add it to the autoloader in composer.json?');
+			return NULL;
+		}
+
+		if(!is_subclass_of($className, '\Fubber\Reactor\Controller')) {
+			Host::$instance->logError('Parsing "'.$path.'": Class "'.$className.'" does not extend \Fubber\Reactor\Controller.');
+			return NULL;
+		}
+
+		return new $className($config);
+	}
+
 	public function createEndpointFromIniFile($path) {
-		if(strpos(realpath($path), realpath(Host::$config->app->root))!==0)
+		if(strpos(realpath($path), realpath(Host::$config->app->routes))!==0)
 			return NULL;
 		$ini = parse_ini_file($path, TRUE, INI_SCANNER_RAW);
 

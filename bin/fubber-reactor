@@ -27,8 +27,10 @@ if(isset($fubberReactorConfig->init)) {
 }
 
 echo "Fubber Reactor Starting: ";
-$inotifyPid = spawn_inotify();
-echo "[file monitor]";
+if(has_inotify()) {
+	$inotifyPid = spawn_inotify();
+	echo "[file monitor]";
+}
 $serverPid = spawn_server();
 echo "[server]\n";
 
@@ -39,13 +41,22 @@ while(TRUE) {
 		echo "Restarting server (PID=$result)\n";
 		$serverPid = spawn_server();
 	}
-	$result = pcntl_waitpid($inotifyPid, $status, WNOHANG);
-	if($result == -1 || $result > 0) {
-		echo "Restarting directory watch (PID=$result)\n";
-		$inotifyPid = spawn_inotify();
-		echo "Killing server (PID=$serverPid)\n";
-		posix_kill($serverPid, SIGABRT);
+	if(has_inotify()) {
+		$result = pcntl_waitpid($inotifyPid, $status, WNOHANG);
+		if($result == -1 || $result > 0) {
+			echo "Restarting directory watch (PID=$result)\n";
+			$inotifyPid = spawn_inotify();
+			echo "Killing server (PID=$serverPid)\n";
+			posix_kill($serverPid, SIGABRT);
+		}
 	}
+}
+
+function has_inotify() {
+	static $result = NULL;
+	if($result === NULL)
+		$result = file_exists('/usr/bin/inotifywait');
+	return $result;
 }
 
 function spawn_inotify() {
