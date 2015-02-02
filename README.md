@@ -3,6 +3,24 @@
 Fubber Reactor is an event driven and forking PHP application server based on the excellent [ReactPHP](www.reactphp.org) event driven PHP framework. 
 Fubber Reactor is an invitation to contribute in developing an awesome PHP application server that combines the best of PHP with the best of node.js. 
 
+## Configuring Fubber Reactor
+
+The simplest way to configure Fubber Reactor is via [composer](getcomposer.org). Simply follow these steps:
+
+1. Download and install composer (skip if you already have done this)
+
+    `curl -sS https://getcomposer.org/installer | php`
+
+2. Add Fubber Reactor as a dependency to your project
+
+    `./composer.phar require fubber/reactor:dev-master`
+
+3. Start Fubber Reactor
+
+    `./vendor/bin/fubber-reactor`
+
+That's it! The default application should be serving at http://localhost:1337/. Check out the wiki for help on how to actually do some work!
+
 ## Event Driven Controller and Forking Controller (beans)
 
 With Fubber Reactor you'll configure URL-paths that map to instances of controller classes (beans). There are currently two types of controller classes:
