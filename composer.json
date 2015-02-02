@@ -4,6 +4,9 @@
     "require": {
         "react/http": "0.5.*@dev"
     },
+    "require-dev": {
+        "react/http": "0.5.*@dev"
+    },
     "license": "GPLv2",
     "authors": [
         {
