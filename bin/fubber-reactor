@@ -1,9 +1,29 @@
 #!/usr/bin/php
 <?php
-// Forks off to run the server
+/**
+*	This is the script that starts up the Fubber Reactor server and monitors that it has not crashed.
+*/
 
-$config = @parse_ini_file('config.ini', TRUE, INI_SCANNER_RAW);
-if(!$config) die("Error: No config.ini found!\n");
+// Find the config file
+$cwd = getcwd();
+while($cwd != "/" && is_dir($cwd) && !file_exists($cwd.'/fubber-reactor.json'))
+	$cwd = dirname($cwd);
+
+if(!file_exists($cwd.'/fubber-reactor.json'))
+	die("Could not find fubber-reactor.json in the current folder or in any of the parent folders. Look at fubber-reactor.json.sample for an example config file.\n");
+
+$fubberReactorConfig = json_decode(file_get_contents($cwd.'/fubber-reactor.json'));
+
+if(!is_object($fubberReactorConfig))
+	die("Config file must contain a valid json structure.\n");
+
+if(isset($fubberReactorConfig->init)) {
+	require($fubberReactorConfig->init);
+} else if(file_exists(dirname(__DIR__).'/vendor/autoload.php')) {
+	require(dirname(__DIR__).'/vendor/autoload.php');
+} else {
+	die("Unable to find ./vendor/autoload.php and no init = 'path/to/setup.php' file.\n");
+}
 
 echo "Fubber Reactor Starting: ";
 $inotifyPid = spawn_inotify();
@@ -38,9 +58,10 @@ function spawn_inotify() {
 }
 
 function spawn_server() {
+	global $fubberReactorConfig;
 	$serverPid = pcntl_fork();
 	if(!$serverPid) {
-		new \Fubber\Reactor\Host($config);
+		new \Fubber\Reactor\Host($fubberReactorConfig);
 		die();
 	}
 

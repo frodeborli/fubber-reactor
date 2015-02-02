@@ -4,7 +4,6 @@ namespace Fubber\Reactor;
 abstract class App {
 	public $hits = 0;
 
-
 	protected $lookupCache = array();
 
 	protected $routes = NULL;
@@ -91,7 +90,7 @@ abstract class App {
 
 	public function scanRoutes($root = NULL) {
 		if($root===NULL)
-			$root = Host::$config['app']['root'];
+			$root = Host::$config->app->root;
 
 		$all = glob($root.'/*'); /* */
 		foreach($all as $path) {
@@ -106,7 +105,7 @@ abstract class App {
 
 	public function scanRouteAdd($path) {
 		$path = realpath($path);
-		$root = realpath(Host::$config['app']['root']);
+		$root = realpath(Host::$config->app->root);
 
 		if(strpos($path, $root)!==0) {
 			Host::$instance->logError("Routes: Not adding $path. Must reside inside $root.");
@@ -163,7 +162,7 @@ abstract class App {
 	}
 
 	public function createEndpointFromIniFile($path) {
-		if(strpos(realpath($path), realpath(Host::$config['app']['root']))!==0)
+		if(strpos(realpath($path), realpath(Host::$config->app->root))!==0)
 			return NULL;
 		$ini = parse_ini_file($path, TRUE, INI_SCANNER_RAW);
 

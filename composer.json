@@ -2,7 +2,7 @@
     "name": "fubber/reactor",
     "description": "An event based optionally forking PHP application server built on top of ReactPHP",
     "keywords": ["application-server","forking","asynchronous"],
-    "license": "GPLv2",
+    "license": "GPL-2.0",
     "support": {
         "issues": "https://github.com/frodeborli/fubber-reactor/issues",
         "wiki": "https://github.com/frodeborli/fubber-reactor/wiki"

@@ -61,11 +61,17 @@ class Host {
 		$this->socket = new \React\Socket\Server($this->loop);
 		$this->http = new \React\Http\Server($this->socket);
 
-		$this->socket->listen(self::$config['http']['port'], self::$config['http']['host']);
+		$this->socket->listen(self::$config->http->port, self::$config->http->host);
+		$this->logNotice("Listening to ".self::$config->http->host.":".self::$config->http->port);
+
 
 		// Note: Forking here seems to work, except we get a few warnings from time to time... Probably because the child also tries to fetch at the same time.
 
-		$appClass = self::$config['app']['class'];
+		$appClass = self::$config->app->class;
+
+		if(!class_exists($appClass)) {
+			$appClass = '\Fubber\Reactor\DefaultApp';
+		}
 
 		self::$app = new $appClass();
 		$this->http->on('request', array(self::$app, 'listen'));
@@ -95,5 +101,9 @@ class Host {
 
 	public function logError($message) {
 		echo "ERROR: ".$message."\n";
+	}
+
+	public function logNotice($notice) {
+		echo "NOTICE: ".$notice."\n";
 	}
 }
