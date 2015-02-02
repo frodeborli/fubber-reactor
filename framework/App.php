@@ -1,5 +1,5 @@
 <?php
-namespace Fubber\Server;
+namespace Fubber\Reactor;
 
 abstract class App {
 	public $hits = 0;
@@ -179,7 +179,7 @@ abstract class App {
 			return NULL;
 		}
 
-		if(!is_subclass_of($className, '\Fubber\Server\Controller')) {
+		if(!is_subclass_of($className, '\Fubber\Reactor\Controller')) {
 			Host::$instance->logError('Parsing "'.$path.'": In section [general], class "'.$className.'" does not extend the class Controller.');
 			return NULL;
 		}

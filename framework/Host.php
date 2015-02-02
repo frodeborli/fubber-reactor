@@ -1,5 +1,5 @@
 <?php
-namespace Fubber\Server;
+namespace Fubber\Reactor;
 
 /**
 *	Master Class, responsible for handling the socket and all requests to it.
@@ -59,12 +59,11 @@ class Host {
 
 		$this->loop = \React\EventLoop\Factory::create();
 		$this->socket = new \React\Socket\Server($this->loop);
-//		$this->http = new \React\Http\Server($this->socket, $this->loop);
-		$this->http = new \React\Http\Server($this->socket); //, $this->loop);
+		$this->http = new \React\Http\Server($this->socket);
 
 		$this->socket->listen(self::$config['http']['port'], self::$config['http']['host']);
 
-// Forking here seems to work, except we get a few warnings from time to time... Probably because the child also tries to fetch at the same time.
+		// Note: Forking here seems to work, except we get a few warnings from time to time... Probably because the child also tries to fetch at the same time.
 
 		$appClass = self::$config['app']['class'];
 

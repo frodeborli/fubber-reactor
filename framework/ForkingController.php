@@ -1,5 +1,5 @@
 <?php
-namespace Fubber\Server;
+namespace Fubber\Reactor;
 
 class ForkingController extends Controller {
 	public function listen($request, $response) {

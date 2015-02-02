@@ -40,7 +40,7 @@ function spawn_inotify() {
 function spawn_server() {
 	$serverPid = pcntl_fork();
 	if(!$serverPid) {
-		require('server.php');
+		new \Fubber\Server\Host($config);
 		die();
 	}
 

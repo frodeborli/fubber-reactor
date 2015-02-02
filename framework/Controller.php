@@ -1,5 +1,5 @@
 <?php
-namespace Fubber\Server;
+namespace Fubber\Reactor;
 
 class Controller {
 	protected $config;
