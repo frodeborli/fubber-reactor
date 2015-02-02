@@ -19,10 +19,11 @@ if(!is_object($fubberReactorConfig))
 
 if(isset($fubberReactorConfig->init)) {
 	require($fubberReactorConfig->init);
-} else if(file_exists(dirname(__DIR__).'/vendor/autoload.php')) {
-	require(dirname(__DIR__).'/vendor/autoload.php');
 } else {
-	die("Unable to find ./vendor/autoload.php and no init = 'path/to/setup.php' file.\n");
+	if(file_exists('vendor/autoload.php'))
+		require('vendor/autoload.php');
+	else
+		die("Unable to find vendor/autoload.php. Either start Fubber Reactor from a folder containing vendor/autoload.php or define the path in \$config->init\n");
 }
 
 echo "Fubber Reactor Starting: ";
