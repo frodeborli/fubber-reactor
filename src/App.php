@@ -1,7 +1,7 @@
 <?php
 namespace Fubber\Reactor;
 
-abstract class App {
+class App {
 	public $hits = 0;
 
 	protected $lookupCache = array();
@@ -74,7 +74,11 @@ abstract class App {
 		$this->scanRoutes();
 
 		// Direct match routes added here, for fastest possible lookup
-		$this->routes = $this->rawRoutes[0];
+		if(!isset($this->rawRoutes[0])) {
+			$this->routes = array();
+		} else {
+			$this->routes = $this->rawRoutes[0];
+		}
 
 		// Weighted routes added here, for semi fast lookup using fnmatch()
 		$index = 0;

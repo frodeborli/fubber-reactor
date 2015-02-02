@@ -10,9 +10,9 @@ while($cwd != "/" && is_dir($cwd) && !file_exists($cwd.'/fubber-reactor.json'))
 	$cwd = dirname($cwd);
 
 if(!file_exists($cwd.'/fubber-reactor.json'))
-	die("Could not find fubber-reactor.json in the current folder or in any of the parent folders. Look at fubber-reactor.json.sample for an example config file.\n");
-
-$fubberReactorConfig = json_decode(file_get_contents($cwd.'/fubber-reactor.json'));
+	$fubberReactorConfig = new stdClass();
+else
+	$fubberReactorConfig = json_decode(file_get_contents($cwd.'/fubber-reactor.json'));
 
 if(!is_object($fubberReactorConfig))
 	die("Config file must contain a valid json structure.\n");
