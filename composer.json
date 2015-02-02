@@ -1,6 +1,15 @@
 {
-	"require": {
-		"php": ">=5.5.0",
-	        "react/http": "dev-master"
-	}
+    "name": "fubber/reactor",
+    "description": "An event based optionally forking PHP application server built on top of ReactPHP",
+    "require": {
+        "react/http": "0.5.*@dev"
+    },
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "Frode Borli",
+            "email": "frodeborli@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
 }

@@ -2,11 +2,14 @@
 <?php
 // Forks off to run the server
 
-echo "FubberServer startup:\n";
+$config = @parse_ini_file('config.ini', TRUE, INI_SCANNER_RAW);
+if(!$config) die("Error: No config.ini found!\n");
+
+echo "Fubber Reactor Starting: ";
 $inotifyPid = spawn_inotify();
-echo "- File monitor started\n";
+echo "[file monitor]";
 $serverPid = spawn_server();
-echo "- Server started\n";
+echo "[server]\n";
 
 while(TRUE) {
 	usleep(100000);
