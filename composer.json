@@ -2,10 +2,10 @@
     "name": "fubber/reactor",
     "description": "An event based optionally forking PHP application server built on top of ReactPHP",
     "require": {
-        "react/http": "0.5.*@dev"
+        "react/http": "*"
     },
     "require-dev": {
-        "react/http": "0.5.*@dev"
+        "react/http": "*"
     },
     "license": "GPLv2",
     "authors": [
