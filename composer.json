@@ -11,5 +11,9 @@
             "email": "frodeborli@gmail.com"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {"Fubber\\Reactor\\": "src/"}
+    },
+    "bin": ["bin/fubber-reactor"]
 }
