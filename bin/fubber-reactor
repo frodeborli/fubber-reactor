@@ -4,15 +4,20 @@
 *	This is the script that starts up the Fubber Reactor server and monitors that it has not crashed.
 */
 
-// Find the config file
-$cwd = __DIR__;
-while($cwd != "/" && is_dir($cwd) && !file_exists($cwd.'/fubber-reactor.json'))
-	$cwd = dirname($cwd);
+// Find the vendor/autoload.php file. The folder that has the vendor/ folder becomes the root folder.
 
-if(!file_exists($cwd.'/fubber-reactor.json'))
+$cwd = __DIR__;
+while(!file_exists($cwd.'/vendor/autoload.php') && ($cwd != ($cwd = dirname($cwd))));
+
+if(!file_exists($cwd.'/vendor/autoload.php'))
+	die("Unable to find vendor/autoload.php. The folder containing the vendor/ folder will act as the root folder for everything.\n");
+
+chdir($cwd);
+
+if(!file_exists('fubber-reactor.json'))
 	$fubberReactorConfig = new stdClass();
 else
-	$fubberReactorConfig = json_decode(file_get_contents($cwd.'/fubber-reactor.json'));
+	$fubberReactorConfig = json_decode(file_get_contents('fubber-reactor.json'));
 
 if(!is_object($fubberReactorConfig))
 	die("Config file must contain a valid json structure.\n");
@@ -20,10 +25,7 @@ if(!is_object($fubberReactorConfig))
 if(isset($fubberReactorConfig->init)) {
 	require($fubberReactorConfig->init);
 } else {
-	if(file_exists($cwd.'/vendor/autoload.php'))
-		require($cwd.'/vendor/autoload.php');
-	else
-		die("Unable to find $cwd/vendor/autoload.php. Either start Fubber Reactor from a folder containing vendor/autoload.php or define the path in \$config->init\n");
+	require('vendor/autoload.php');
 }
 
 echo "Fubber Reactor Starting: ";

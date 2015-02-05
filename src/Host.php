@@ -191,14 +191,9 @@ class Host implements EndpointInterface {
 		if(isset($this->config->routes)) {
 			$routesRoot = $this->config->routes;
 		} else {
-			$routesRoot = __DIR__;
-			while(!is_dir($routesRoot.'/routes') && (($routesRoot = dirname($routesRoot)) != $routesRoot));
-			if(is_dir($routesRoot.'/routes')) {
-				$routesRoot .= '/routes';
-			} else {
-				$this->notice("Unable to find a folder named routes/. Won't scan for routing files.");
-				return;
-			}
+			if(!is_dir('routes/'))
+				return FALSE;
+			$routesRoot = realpath('routes/');
 		}
 
 		$routes = $this->scanRoutes($routesRoot);
