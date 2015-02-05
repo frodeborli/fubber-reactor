@@ -8,6 +8,7 @@
         "wiki": "https://github.com/frodeborli/fubber-reactor/wiki"
     },
     "require": {
+        "psr/log": "1.0.*@dev",
         "react/http": "*"
     },
     "require-dev": {
@@ -21,6 +22,9 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {"Fubber\\Reactor\\": "src/"}
+    },
+    "autoload-dev": {
+        "psr-4": {"": "classes/"}
     },
     "bin": ["bin/fubber-reactor"]
 }

@@ -1,6 +1,5 @@
 {
-    "app": {
-    },
     "http": {
+	"host": "frodeborli.cust.seria.no"
     }
 }

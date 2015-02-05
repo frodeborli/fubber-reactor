@@ -1,6 +1,9 @@
 <?php
 namespace Fubber\Reactor;
 
+/**
+*	Represents the Application
+*/
 class App {
 	public $hits = 0;
 
@@ -12,10 +15,11 @@ class App {
 
 	protected $endpoints = array();
 
-	public function listen($request, $response) {
+	public function __construct() {
+		$this->buildRoutes();
+	}
 
-		if($this->routes === NULL)
-			$this->buildRoutes();
+	public function listen($request, $response) {
 
 		$this->hits++;
 

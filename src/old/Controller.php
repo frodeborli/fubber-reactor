@@ -1,7 +1,7 @@
 <?php
 namespace Fubber\Reactor;
 
-class Controller implements EndpointInterface {
+class Controller {
 	protected $config;
 
 	public function __construct($config) {
@@ -14,7 +14,7 @@ class Controller implements EndpointInterface {
 		if(method_exists($this, $methodName)) {
 			return $this->$methodName($request, $response);
 		} else {
-			return Host::$instance->respondError(405, $request, $response);
+			return Host::$app->respondError(405, $request, $response);
 		}
 	}
 }
