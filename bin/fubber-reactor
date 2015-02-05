@@ -7,11 +7,13 @@
 // Find the vendor/autoload.php file. The folder that has the vendor/ folder becomes the root folder.
 
 $cwd = __DIR__;
-while(!file_exists($cwd.'/vendor/autoload.php') && ($cwd != ($cwd = dirname($cwd))));
-
-if(!file_exists($cwd.'/vendor/autoload.php'))
-	die("Unable to find vendor/autoload.php. The folder containing the vendor/ folder will act as the root folder for everything.\n");
-
+while(!file_exists($cwd.'/vendor/autoload.php')) {
+	$newCwd = dirname($cwd);
+	if($newCwd == $cwd) {
+		die("Unable to find vendor/autoload.php. The folder containing the vendor/ folder will act as the root folder for everything.\n");
+	}
+	$cwd = $newCwd;	
+}
 chdir($cwd);
 
 if(!file_exists('fubber-reactor.json'))
