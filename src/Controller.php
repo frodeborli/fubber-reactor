@@ -4,8 +4,9 @@ namespace Fubber\Reactor;
 class Controller implements EndpointInterface {
 	protected $config;
 
-	public function __construct($config) {
-		$this->config = $config;
+	public function __construct($config=NULL) {
+        if(!$config) $this->config = new \stdClass();
+		else $this->config = $config;
 	}
 
 	public function listen($request, $response) {

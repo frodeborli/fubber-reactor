@@ -20,6 +20,7 @@ Make Application concept. Ideas:
 */
 class Host implements EndpointInterface {
 	use \Psr\Log\LoggerTrait;
+    use \Evenement\EventEmitterTrait;
 
 	public $hits = 0;
 	public static $instance;
@@ -34,15 +35,17 @@ class Host implements EndpointInterface {
 	protected $routes = NULL;
 	// Routes sorted by the number of wildcards
 	protected $searchRoutes = array();
-	// All routes
-	protected $rawRoutes = array();
+	// Extra routes, added by software - saved here in case we must rebuild
+	protected $extraRoutes = array();
 
 	protected $loop;
 	protected $socket;
 	protected $http;
+    protected $pdos = array();
 
 	protected static $forkMonitors = array();
 	protected static $forkId = 0;
+
 
 	public function fork($ttl = 10) {
 		$pid = pcntl_fork();
@@ -86,14 +89,44 @@ class Host implements EndpointInterface {
 		$this->socket->listen($this->config->http->port, $this->config->http->host);
 		$this->notice("Listening to ".$this->config->http->host.":".$this->config->http->port);
 
+		if($this->config->http->host == 'localhost') $this->warning("Your app is only listening to 'localhost'. Unless your browser is running on this computer, you'll not be able to connect!");
+
 		$this->buildRoutingTable();
 
 		$this->http->on('request', array($this, 'listen'));
+
+        // Load Apps
+        if(isset($this->config->apps)) {
+            foreach($this->config->apps as $appClass => $appConfig) {
+                new $appClass($this, $appConfig);
+            }
+        }
+
 		$this->info("Starting Host Loop");
 		$this->loop->run();
 		$this->info("Host Loop Ended");
 
 	}
+
+    public function getDatabaseConnection($name) {
+        if(isset($this->pdos[$name])) {
+            return $this->pdos[$name];
+        } elseif(!isset($this->config->database)) {
+            $this->critical('No database config in fubber-reactor.json.');
+            return NULL;
+        } else if(!isset($this->config->database->$name)) {
+            $this->critical('Server is requesting the database connection "'.$name.'" but it was not found in fubber-reactor.json');
+            return NULL;
+        } else {
+    		$pdo = new \PDO($this->config->database->$name->dsn, $this->config->database->$name->user, $this->config->database->$name->password);
+            if($pdo) {
+                return $this->pdos[$name] = $pdo;
+            } else {
+                $this->critical('Unable to connect to the database DSN "'.$this->config->database->$name->dsn.'"');
+                return NULL;
+            }
+        }
+    }
 
 	public function setLoop($loop) {
 		$this->loop = $loop;
@@ -121,6 +154,7 @@ class Host implements EndpointInterface {
 	*	Handle an incoming request, map it to the correct endpoint using routes and call the listen method on the endpoint
 	*/
 	public function listen($request, $response) {
+//		$this->debug('Host::listen: path='.$request->getPath().'?'.http_build_query($request->getQuery()));
 		$this->hits++;
 
 		$path = '/'.ltrim($request->getPath(), '/');
@@ -183,11 +217,36 @@ class Host implements EndpointInterface {
 		return $this->listen(new \React\Http\Request($request->getMethod(), '/errors/'.$httpCode, $request->getQuery(), $request->getHttpVersion(), $headers), $response);
 	}
 
+    /**
+    *   Add a routing rule to the routing table. The $endpoint must be either a callback accepting $request, $response, or a class that extends the \Fubber\Reactor\Controller.
+    */
+    public function addRoute($pattern, $endpoint) {
+        if(is_object($endpoint) && $endpoint instanceof \Fubber\Reactor\EndpointInterface) {
+            // All is fine and dandy
+        } elseif (is_callable($endpoint)) {
+            // Make a CallbackController
+            return $this->addRoute($pattern, new CallbackController($endpoint));
+        } else {
+            $this->notice('Host::addRoute(): Expects a callback or a controller');
+            return FALSE;
+        }
+
+        $count = substr_count($pattern, '*');
+
+        if ($count === 0) {
+            // This is merely a direct route
+            $this->extraRoutes[$pattern] = $this->routes[$pattern] = $endpoint;
+        } else {
+            // Add this route to the $this->searchRoutes and sort it again
+            $this->extraRoutes[$pattern] = $endpoint;
+            $this->searchRoutes[] = array($pattern, $endpoint);
+        }
+    }
+
 	public function buildRoutingTable() {
 		$this->routes = array();
 		$this->searchRoutes = array();
 
-		$this->rawRoutes = array();
 		if(isset($this->config->routes)) {
 			$routesRoot = $this->config->routes;
 		} else {
@@ -197,13 +256,7 @@ class Host implements EndpointInterface {
 		}
 
 		$routes = $this->scanRoutes($routesRoot);
-
-		usort($routes, function($a,$b) {
-			$ac = substr_count($a[0], '*');
-			$bc = substr_count($b[0], '*');
-			if($ac == $bc) return 0;
-			return ($ac < $bc) ? -1 : 1;
-		});
+        $routes = self::sortRoutes($routes);
 
 		foreach($routes as $route) {
 			if(strpos($route[0], '*')===false) {
@@ -213,6 +266,16 @@ class Host implements EndpointInterface {
 			}
 		}
 	}
+
+    protected static function sortRoutes($routes) {
+		uasort($routes, function($a,$b) {
+			$ac = substr_count($a[0], '*');
+			$bc = substr_count($b[0], '*');
+			if($ac == $bc) return 0;
+			return ($ac < $bc) ? -1 : 1;
+		});
+        return $routes;
+    }
 
 	/**
 	*	Recursively find all routes within path

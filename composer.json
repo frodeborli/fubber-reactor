@@ -9,6 +9,7 @@
     },
     "require": {
         "psr/log": "1.0.*@dev",
+        "evenement/evenement": "2.0.*@dev",
         "react/http": "*"
     },
     "require-dev": {
