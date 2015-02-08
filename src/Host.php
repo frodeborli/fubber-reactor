@@ -174,7 +174,7 @@ class Host implements EndpointInterface {
 					unset($this->lookupCache[$path]);
 					$this->lookupCache[$path] = $endpointKey;
 				}
-				$endpoint = $this->searchRoutes[$endpointKey];
+				$endpoint = $this->searchRoutes[$endpointKey][1];
 			} else {
 				foreach($this->searchRoutes as $key => $route) {
 					if(fnmatch($route[0], $path)) {
@@ -190,7 +190,7 @@ class Host implements EndpointInterface {
 					while($this->lookupCacheCount-- > 1000)
 						array_shift($this->lookupCache); // Remove something from the beginning of the array
 
-					$endpoint = $this->searchRoutes[$endpointKey];
+					$endpoint = $this->searchRoutes[$endpointKey][1];
 				}
 			}
 		}
